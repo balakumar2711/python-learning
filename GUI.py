@@ -4,6 +4,9 @@ import functions
 
 import FreeSimpleGUI as sg #External module
 
+import time
+
+clock = sg.Text('', key='clock') #Declaring this variable so that it can be updated below to display the clock
 label = sg.Text("Enter an item: ")
 input_box = sg.InputText(tooltip="Enter an item", key='todo')
 add_button = sg.Button("Add")
@@ -14,16 +17,16 @@ complete_button = sg.Button('Complete')
 exit_button = sg.Button('Exit')
 
 window = sg.Window('My app',
-                   layout=[[label],
+                   layout=[[clock],
+                           [label],
                            [input_box, add_button],
                            [list_box, edit_button, complete_button],
                            [exit_button]],
                    font= ('Arial',10)) #What to display is defined here and the content is managed by Layout
 
 while True:
-    event,values=window.read()
-    print(event)
-    print(values)
+    event,values=window.read(timeout =200) #Timeout is specified so that the time function runs
+    window['clock'].update(value=time.strftime("%Y-%m-%d %H:%M:%S"))
     match event:
         case 'Add':
             todos = functions.read_fun()
@@ -33,23 +36,28 @@ while True:
             window['todos'].update(values=todos) #Add the item in real time in the GUI
 
         case 'Edit':
-            todo_to_edit = values['todos'][0] #This gives the string that I want to edit.
-            new_todo = values['todo'] + '\n' #This gets the value from the input box which is where I have entered my new item
+            try:
+                todo_to_edit = values['todos'][0] #This gives the string that I want to edit.
+                new_todo = values['todo'] #This gets the value from the input box which is where I have entered my new item
 
-            todos = functions.read_fun() #Read the existing list
-            index = todos.index(todo_to_edit) #Get the index of the selected item
-            todos[index] = new_todo #Modify the list to add the new item
-            functions.write_fun(todos)
-            window['todos'].update(values=todos) #Access the list box(Window is the parent here) and update the values to latest so that in real time in GUI you will get the updated list
+                todos = functions.read_fun() #Read the existing list
+                index = todos.index(todo_to_edit) #Get the index of the selected item
+                todos[index] = new_todo #Modify the list to add the new item
+                functions.write_fun(todos)
+                window['todos'].update(values=todos) #Access the list box(Window is the parent here) and update the values to latest so that in real time in GUI you will get the updated list
+            except IndexError:
+                sg.popup("Enter an item to edit")
 
         case 'Complete':
-            item_to_complete = values['todos'][0] #The string that needs to be removed
-            todos = functions.read_fun() #Read the existing list
-            todos.remove(item_to_complete) #Append the list to remove the item
-            functions.write_fun(todos) #Writes the appended list to the text file
-            window['todos'].update(values=todos) #In the GUI append the list and display the result on the go
-            window['todo'].update(value='') #In the Input text give the blank instead the item name
-
+            try:
+                item_to_complete = values['todos'][0] #The string that needs to be removed
+                todos = functions.read_fun() #Read the existing list
+                todos.remove(item_to_complete) #Append the list to remove the item
+                functions.write_fun(todos) #Writes the appended list to the text file
+                window['todos'].update(values=todos) #In the GUI append the list and display the result on the go
+                window['todo'].update(value='') #In the Input text give the blank instead the item name
+            except IndexError:
+                sg.popup("Select the item to remove and complete the list")
         case 'Exit':
             break
 
