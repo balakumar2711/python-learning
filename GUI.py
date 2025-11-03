@@ -10,9 +10,14 @@ add_button = sg.Button("Add")
 list_box = sg.Listbox(values=functions.read_fun(), key='todos',
                       enable_events=True, size=[45,10])
 edit_button = sg.Button('Edit')
+complete_button = sg.Button('Complete')
+exit_button = sg.Button('Exit')
 
 window = sg.Window('My app',
-                   layout=[[label], [input_box, add_button], [list_box, edit_button]],
+                   layout=[[label],
+                           [input_box, add_button],
+                           [list_box, edit_button, complete_button],
+                           [exit_button]],
                    font= ('Arial',10)) #What to display is defined here and the content is managed by Layout
 
 while True:
@@ -37,8 +42,20 @@ while True:
             functions.write_fun(todos)
             window['todos'].update(values=todos) #Access the list box(Window is the parent here) and update the values to latest so that in real time in GUI you will get the updated list
 
+        case 'Complete':
+            item_to_complete = values['todos'][0] #The string that needs to be removed
+            todos = functions.read_fun() #Read the existing list
+            todos.remove(item_to_complete) #Append the list to remove the item
+            functions.write_fun(todos) #Writes the appended list to the text file
+            window['todos'].update(values=todos) #In the GUI append the list and display the result on the go
+            window['todo'].update(value='') #In the Input text give the blank instead the item name
+
+        case 'Exit':
+            break
+
         case 'todos': #Right now if this is not specified everytime when a item is selected for replacing its not updating in the input box to reflect the selection
             window['todo'].update(value=values['todos'][0])
+
         case sg.WIN_CLOSED:
             break
 
