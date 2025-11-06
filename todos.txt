@@ -1,3 +1,4 @@
-Study python for 3 hours
-Refresh SQL and learn new stuffs for 2 hours
-Go through Devops
+Study python
+Be consistent
+Refresh SQL and learn new concepts as well
+Refresh DevOps
